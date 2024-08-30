@@ -1,0 +1,30 @@
+{
+  "name": "elib",
+  "version": "1.0.0",
+  "description": "This is ebook library fullstack project.",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start",
+    "dev": "nodemon server.ts",
+    "build": "webpack -p"
+  },
+  "author": "Binayaraj Soti <sbinayaraj@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^22.5.1",
+    "i": "^0.3.7",
+    "jasmine-core": "^5.2.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-jasmine": "^5.1.0",
+    "karma-webpack": "^5.0.1",
+    "nodemon": "^3.1.4",
+    "npm": "^10.8.3",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "webpack": "^5.94.0",
+    "webpack-dev-server": "^5.0.4"
+  }
+}
