@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import { Users } from "./userModel";
 import bcrypt from 'bcrypt';
 import jwt  from "jsonwebtoken";
+import { config } from "../config/configuration";
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Check if the request body is empty
@@ -25,7 +26,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             password:hashedPassword,
         });
         await newUser.save();
-        const token = jwt.sign({ userId: newUser._id }, "secretKey", {
+        const token = jwt.sign({ userId: newUser._id }, config.SECRET_KEY, {
             expiresIn: '2h'
         });
         res.cookie('accessToken',token,{
