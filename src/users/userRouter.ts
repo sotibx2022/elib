@@ -1,6 +1,5 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
+import { createUser } from './userController';
 const userRouter = Router();
-userRouter.post("/register",(req:Request,res:Response)=>{
-    res.json("User Posted");
-})
+userRouter.post("/register",createUser)
 export default userRouter;
