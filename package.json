@@ -11,8 +11,12 @@
   "author": "Binayaraj Soti <sbinayaraj@gmail.com>",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/express": "^4.17.21",
     "@types/jasmine": "^5.1.4",
     "@types/node": "^22.5.1",
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0",
     "i": "^0.3.7",
     "jasmine-core": "^5.2.0",
     "karma": "^6.4.4",
@@ -24,7 +28,12 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
+    "typescript-eslint": "^8.3.0",
     "webpack": "^5.94.0",
     "webpack-dev-server": "^5.0.4"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.6.0"
   }
 }
