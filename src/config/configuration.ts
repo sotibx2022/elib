@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config()
 const _config = {
-    PORT:"5231",
-    CONNECTION_STRING:"mongodb+srv://sbinayaraj:talAFPtN1cnUzFB8@cluster0.bmbf1.mongodb.net/elib?retryWrites=true&w=majority&appName=Cluster0",
-    ENV:"development"
+PORT:process.env.PORT,
+CONNECTION_STRING:process.env.CONNECTION_STRING,
+ENV:process.env.ENV,
+SECRET_KEY:process.env.SECRET_KEY
 };
 export const config = Object.freeze(_config);

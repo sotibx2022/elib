@@ -26,7 +26,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             password:hashedPassword,
         });
         await newUser.save();
-        const token = jwt.sign({ userId: newUser._id }, config.SECRET_KEY, {
+        const token = jwt.sign({ userId: newUser._id }, config.SECRET_KEY!, {
             expiresIn: '2h'
         });
         res.cookie('accessToken',token,{

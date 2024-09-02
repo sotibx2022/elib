@@ -5,7 +5,7 @@ import { connectToDB } from "./src/config/db";
 import createHttpError from "http-errors";
 const startServer = async() => {
     await connectToDB()
-    const port = parseInt(config.PORT)
+    const port = parseInt(config.PORT!)
     app.listen(port, () => {
         console.log(`Listening at Port : ${port}`);
     });

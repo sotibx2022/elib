@@ -11,7 +11,7 @@ export  const connectToDB = async() =>{
         mongoose.connection.on('disconnected', () => {
             console.log("MongoDB Disconnected");
         });
-        await mongoose.connect(config.CONNECTION_STRING!) 
+        await mongoose.connect(config.CONNECTION_STRING as string) 
     } catch (error) {
         console.log("Couldnot connect to the DB", error);
         process.exit(1);
