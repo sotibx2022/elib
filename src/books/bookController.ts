@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import cloudinary from '../config/cloudinary';
-import path from 'path';
+import createHttpError from 'http-errors';
+import { uploadFile } from '../helper/upload';
+import { Books } from './bookModel';
+interface AuthRequest extends Request {
+    userId: string;
+}
 export const createBook = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('req.body:', req.body); // Log all text fields (title, author, genre)
-    console.log('req.files:', req.files); // Log the entire req.files object to see both pdf and coverImage
+    const _req = req as AuthRequest;
     const { title, author, genre } = req.body;
     if (!title || !author || !genre) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -11,42 +14,31 @@ export const createBook = async (req: Request, res: Response, next: NextFunction
     const files = req.files as {
         [fieldname: string]: Express.Multer.File[];
     };
-    // Handling the 'pdf' field
-    if (files?.pdf?.length > 0) {
-        console.log('PDF:', files.pdf[0]); // Log the 'pdf' upload
-        const pdfFileName = files.pdf[0].filename;
-        const pdfFilePath = path.resolve(__dirname, "../../public/assets/uploads", pdfFileName);
-        try {
-            const uploadResult = await cloudinary.uploader.upload(pdfFilePath, {
-                resource_type: "raw",
-                filename_override: pdfFileName,
-                folder: "bookPdfs",
-                format: "pdf",
-            });
-            console.log('PDF Upload Result:', uploadResult);
-        } catch (error) {
-            console.log('Error uploading PDF:', error);
+    try {
+        let imageUrl: string = "";
+        let pdfUrl: string = "";
+        // Handling the 'pdf' field
+        if (files?.pdf?.length > 0) {
+            pdfUrl = await uploadFile(files.pdf[0], "bookPdfs", "pdf");
+        } else {
+            return next(createHttpError(400, "No PDF file found"));
         }
-    } else {
-        console.log('No pdf field found');
-    }
-    // Handling the 'coverImage' field
-    if (files?.coverImage?.length > 0) {
-        console.log('Cover Image:', files.coverImage[0]); // Log the 'coverImage' upload
-        const coverImageFileName = files.coverImage[0].filename;
-        const coverImageFilePath = path.resolve(__dirname, "../../public/assets/uploads", coverImageFileName);
-        try {
-            const uploadResult = await cloudinary.uploader.upload(coverImageFilePath, {
-                filename_override: coverImageFileName,
-                folder: "coverImages",
-                format: files.coverImage[0].mimetype.split('/')[1]  // Correctly setting the image format
-            });
-            console.log('Cover Image Upload Result:', uploadResult);
-        } catch (error) {
-            console.log('Error uploading cover image:', error);
+        // Handling the 'coverImage' field
+        if (files?.coverImage?.length > 0) {
+            imageUrl = await uploadFile(files.coverImage[0], "coverImages", "any");
+        } else {
+            return next(createHttpError(400, "No cover image found"));
         }
-    } else {
-        console.log('No coverImage field found');
+        // Create a new book entry in the database
+        const newBook = await Books.create({
+            title,
+            author: _req.userId,
+            genre,
+            coverImage: imageUrl,
+            file: pdfUrl
+        });
+        res.status(201).json(newBook); // Send back the created book entry
+    } catch (error) {
+        next(createHttpError(500, `Error creating book`));
     }
-    res.send("Files and data received");
 };
