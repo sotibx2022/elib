@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-interface BookDocument extends Document {
+export interface BookDocument extends Document {
     title: string;
     author: mongoose.Types.ObjectId; // Reference to the Users model
     genre: string; // Corrected spelling
