@@ -116,3 +116,60 @@ try {
     return next(createHttpError('400',"Error to Fetch Books"))
 }
 }
+export const getSingleBook = async (req:Request, res:Response, next:NextFunction)=>{
+    try {
+        const bookId = req.params.bookId;
+    const singleBook = await Books.find({_id:bookId});
+    if(!singleBook){
+        return next(createHttpError(400,"Book Not found."))
+    }
+    return res.json({status:200, message:"Single Books Found", singleBook})
+    } catch (error) {
+       return next(createHttpError(400,'Error to fetch Data')) 
+    }
+}
+export const deleteSingleBook = async (req: Request, res: Response, next: NextFunction) => {
+    const bookId = req.params.bookId;
+    try {
+      // Find the book by ID
+      const singleBook = await Books.findById(bookId);
+      // If book is not found, return an error
+      if (!singleBook) {
+        return next(createHttpError(400, "Book to delete not found"));
+      }
+      const _req = req as AuthRequest;
+      // Check if the user is authorized to delete the book
+      if (_req.userId !== singleBook.author.toString()) {
+        return next(createHttpError(403, "You are not authorized to delete this book"));
+      }
+      // Delete the cover image from Cloudinary
+      try {
+        let imagePublicPath = generatePublicPath(singleBook.coverImage);
+        if(imagePublicPath){
+            await cloudinary.uploader.destroy(imagePublicPath);
+        }
+      } catch (error) {
+        return next(createHttpError(500, "Error deleting Cloudinary cover image"));
+      }
+      // Delete the PDF file from Cloudinary
+      try {
+        let pdfPublicPath = generatePublicPath(singleBook.file);
+        if(pdfPublicPath){
+            await cloudinary.uploader.destroy(pdfPublicPath);
+        }
+      } catch (error) {
+        return next(createHttpError(500, "Error deleting Cloudinary file"));
+      }
+      // Delete the book from the database
+      try {
+        await singleBook.deleteOne(); // Use `deleteOne` instead of `delete` (better semantic)
+      } catch (error) {
+        return next(createHttpError(500, "Error deleting book from the database"));
+      }
+      // Respond with a success message
+      return res.json({ message: "Book deleted successfully", status: 200, success: true });
+    } catch (error) {
+      // Handle any unexpected errors
+      return next(createHttpError(500, "Internal server error"));
+    }
+  };
