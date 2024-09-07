@@ -1,7 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
 export interface BookDocument extends Document {
     title: string;
-    author: mongoose.Types.ObjectId; // Reference to the Users model
+    author:string;
+    user: mongoose.Types.ObjectId; // Reference to the Users model
     genre: string; // Corrected spelling,
     description:string,
     coverImage: string;
@@ -12,9 +13,13 @@ const bookSchema = new Schema<BookDocument>({
         type: String,
         required: true
     },
-    author: {
+    author:{
+        type:String,
+        required:true,
+    },
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users", // Reference to the Users model
+        ref: "User", // Reference to the Users model
         required: true,
     },
     genre: { // Corrected spelling

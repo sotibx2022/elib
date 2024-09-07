@@ -34,7 +34,8 @@ export const createBook = async (req: Request, res: Response, next: NextFunction
         // Create a new book entry in the database
         const newBook = await Books.create({
             title,
-            author: _req.userId,
+            author,
+            user:_req.userId,
             genre,
             description,
             coverImage: imageUrl,
@@ -48,7 +49,7 @@ export const createBook = async (req: Request, res: Response, next: NextFunction
 export const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const bookId = req.params.bookId;
-        const { title, genre, description } = req.body;
+        const { title, genre, description, author } = req.body;
         // Initialize with existing values
         let pdfUrl: string | undefined = undefined;
         let imageUrl: string | undefined = undefined;
@@ -90,7 +91,7 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
         // Fetch existing book details
         const _req = req as AuthRequest;
 const userId = _req.userId;
-if(userId !== book.author.toString()){
+if(userId !== book.user.toString()){
     return next(createHttpError('401',"User Not autorized"))
 }
         // Update the book with the new or existing values
@@ -100,6 +101,7 @@ if(userId !== book.author.toString()){
                 title,
                 genre,
                 description,
+                author,
                 coverImage: imageUrl || book.coverImage,
                 file: pdfUrl || book.file
             },
@@ -110,24 +112,26 @@ if(userId !== book.author.toString()){
         next(error);
     }
 };
-export const listAllBooks = async (req:Request, res:Response, next:NextFunction) =>{
-try {
-    const allBooks = await Books.find().populate("author", "name email");
-    return res.json({status:200, message:"Books Found Successfully", allBooks})
-} catch (error) {
-    return next(createHttpError('400',"Error to Fetch Books"))
+export const listAllBooks = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const allBooks = await Books.find().populate('user', 'name email');
+        return res.json({ status: 200, message: "Books Found Successfully", allBooks });
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        return next(createHttpError(500, "Error Fetching Books")); // Use 500 for server errors
+    }
 }
-}
-export const getSingleBook = async (req:Request, res:Response, next:NextFunction)=>{
+export const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const bookId = req.params.bookId;
-    const singleBook = await Books.find({_id:bookId}).populate("author","name email");
-    if(!singleBook){
-        return next(createHttpError(400,"Book Not found."))
-    }
-    return res.json({status:200, message:"Single Books Found", singleBook})
+        const singleBook = await Books.findOne({ _id: bookId }).populate('user', 'name email');
+        if (!singleBook) {
+            return next(createHttpError(404, "Book Not Found")); // Use 404 for not found
+        }
+        return res.json({ status: 200, message: "Single Book Found", singleBook });
     } catch (error) {
-       return next(createHttpError(400,'Error to fetch Data')) 
+        console.error(error); // Log the error for debugging
+        return next(createHttpError(500, "Error Fetching Book")); // Use 500 for server errors
     }
 }
 export const deleteSingleBook = async (req: Request, res: Response, next: NextFunction) => {
@@ -141,7 +145,7 @@ export const deleteSingleBook = async (req: Request, res: Response, next: NextFu
       }
       const _req = req as AuthRequest;
       // Check if the user is authorized to delete the book
-      if (_req.userId !== singleBook.author.toString()) {
+      if (_req.userId !== singleBook.user.toString()) {
         return next(createHttpError(403, "You are not authorized to delete this book"));
       }
       // Delete the cover image from Cloudinary
