@@ -65,7 +65,6 @@ export const updateBook = async (req: Request, res: Response, next: NextFunction
                     const result = await cloudinary.uploader.destroy(filePublicPath, {
                         resource_type: 'raw' 
                     });
-                    console.log('File deletion result:', result);
                 } catch (error) {
                     console.error('Error deleting file:', error);
                 }
@@ -109,3 +108,11 @@ if(userId !== book.author.toString()){
         next(error);
     }
 };
+export const listAllBooks = async (req:Request, res:Response, next:NextFunction) =>{
+try {
+    const allBooks = await Books.find();
+    return res.json({status:200, message:"Books Found Successfully", allBooks})
+} catch (error) {
+    return next(createHttpError('400',"Error to Fetch Books"))
+}
+}
