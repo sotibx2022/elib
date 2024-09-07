@@ -9,8 +9,8 @@ interface AuthRequest extends Request {
 }
 export const createBook = async (req: Request, res: Response, next: NextFunction) => {
     const _req = req as AuthRequest;
-    const { title, author, genre } = req.body;
-    if (!title || !author || !genre) {
+    const { title, author, genre, description } = req.body;
+    if (!title || !author || !genre || !description) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     const files = req.files as {
@@ -36,6 +36,7 @@ export const createBook = async (req: Request, res: Response, next: NextFunction
             title,
             author: _req.userId,
             genre,
+            description,
             coverImage: imageUrl,
             file: pdfUrl
         });
@@ -47,7 +48,7 @@ export const createBook = async (req: Request, res: Response, next: NextFunction
 export const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const bookId = req.params.bookId;
-        const { title, genre } = req.body;
+        const { title, genre, description } = req.body;
         // Initialize with existing values
         let pdfUrl: string | undefined = undefined;
         let imageUrl: string | undefined = undefined;
@@ -98,6 +99,7 @@ if(userId !== book.author.toString()){
             {
                 title,
                 genre,
+                description,
                 coverImage: imageUrl || book.coverImage,
                 file: pdfUrl || book.file
             },
@@ -110,7 +112,7 @@ if(userId !== book.author.toString()){
 };
 export const listAllBooks = async (req:Request, res:Response, next:NextFunction) =>{
 try {
-    const allBooks = await Books.find();
+    const allBooks = await Books.find().populate("author", "name email");
     return res.json({status:200, message:"Books Found Successfully", allBooks})
 } catch (error) {
     return next(createHttpError('400',"Error to Fetch Books"))
@@ -119,7 +121,7 @@ try {
 export const getSingleBook = async (req:Request, res:Response, next:NextFunction)=>{
     try {
         const bookId = req.params.bookId;
-    const singleBook = await Books.find({_id:bookId});
+    const singleBook = await Books.find({_id:bookId}).populate("author","name email");
     if(!singleBook){
         return next(createHttpError(400,"Book Not found."))
     }
