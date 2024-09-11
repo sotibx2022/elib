@@ -11,9 +11,9 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         if (!req.body) {
             return next(createHttpError(400, "No body provided"));
         }
-        const { name, email, password } = req.body;
+        const { firstName,lastName, email, password } = req.body;
         // Validate required fields
-        if (!name || !email || !password) {
+        if (!firstName ||!lastName || !email || !password) {
             return next(createHttpError(400, "All fields are required"));
         }
         // Check if the user already exists
@@ -24,7 +24,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         // Hash the password and create the new user
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await Users.create({
-            name,
+            name: firstName + lastName,
             email,
             password: hashedPassword,
         });
@@ -39,7 +39,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             maxAge: 2 * 60 * 60 * 1000 // 2 hours
         });
         // Return success response with the token
-        return res.status(201).json({ accessToken: token });
+        return res.status(201).json({success:true, status:200, message:"User Registered Successfully !" });
     } catch (error) {
         // Pass any unexpected errors to the error-handling middleware
         return next(error);
