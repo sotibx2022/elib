@@ -15,6 +15,6 @@ export const authentication =(req:Request,res:Response,next:NextFunction)=>{
         next()
     }
     else{
-        next(createHttpError(400,"Token Not found"))
+        return next(createHttpError(400,"Token Not found"))
     }
 }

@@ -9,7 +9,8 @@ interface AuthRequest extends Request {
 }
 export const createBook = async (req: Request, res: Response, next: NextFunction) => {
     const _req = req as AuthRequest;
-    const { title, author, genre, description } = req.body;
+    const { title, description, author, genre } = req.body;
+    // Check for required fields
     if (!title || !author || !genre || !description) {
         return res.status(400).json({ message: 'All fields are required' });
     }
@@ -35,13 +36,13 @@ export const createBook = async (req: Request, res: Response, next: NextFunction
         const newBook = await Books.create({
             title,
             author,
-            user:_req.userId,
+            user: _req.userId,
             genre,
             description,
             coverImage: imageUrl,
             file: pdfUrl
         });
-        res.status(201).json(newBook); // Send back the created book entry
+        res.status(201).json({message:"Book Created Successfully", status:201, success:true}); // Send back the created book entry
     } catch (error) {
         next(createHttpError(500, `Error creating book`));
     }
@@ -107,7 +108,7 @@ if(userId !== book.user.toString()){
             },
             { new: true }
         );
-        res.status(200).json(updatedBook);
+        res.status(200).json({message:"Book Created Successfully", status:200, success:true});
     } catch (error) {
         next(error);
     }
